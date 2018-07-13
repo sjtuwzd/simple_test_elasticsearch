@@ -2,6 +2,8 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
@@ -17,6 +19,7 @@ import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.*;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.common.xcontent.XContentFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -27,6 +30,7 @@ import java.util.Random;
 
 import static java.lang.System.exit;
 import static java.lang.System.setErr;
+import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 
 public class hello {
@@ -55,13 +59,16 @@ public class hello {
         int N = 10000000;
 //        int LENGTH = 10;
         int BULK_SIZE =10000;
-        int BULK_NUM =2000;
+        int BULK_NUM =10000;
 
         //非集群client
 //        RestHighLevelClient client = new RestHighLevelClient(
 //                RestClient.builder(
 //                        new HttpHost("localhost", 9200, "http"),
 //                        new HttpHost("localhost", 9201, "http")));
+
+
+
 
         //集群client
 //
@@ -71,14 +78,47 @@ public class hello {
                     .addTransportAddress(new TransportAddress(InetAddress.getByName("101.37.27.229"), 9300))
                     .addTransportAddress(new TransportAddress(InetAddress.getByName("116.62.52.217"), 9300))
                     .addTransportAddress(new TransportAddress(InetAddress.getByName("116.62.53.46"), 9300));
+
+            client.admin().indices().create(new CreateIndexRequest("newtest")).actionGet();
+            PutMappingResponse putMappingResponse = client.admin().indices()
+                    .preparePutMapping("newtest")
+                    .setType("doc")
+                    .setSource(jsonBuilder().prettyPrint()
+                        .startObject()
+                            .startObject("rawdata").field("type", "string").field("index", "not_analyzed").endObject()
+                            .startObject("spectrum").field("type", "string").field("index", "not_analyzed").endObject()
+                            .startObject("id").field("type", "string").endObject()
+                             .startObject("timestamp").field("type", "integer").endObject()
+                            .startObject("health").field("type", "integer").endObject()
+                            .startObject("rul").field("type", "integer").endObject()
+                            .startObject("RMS").field("type", "integer").endObject()
+                            .startObject("VAR").field("type", "integer").endObject()
+                            .startObject("peak").field("type", "integer").endObject()
+                            .startObject("CrestIndex").field("type", "integer").endObject()
+                            .startObject("peakpeak").field("type", "integer").endObject()
+                            .startObject("MarginIndex").field("type", "integer").endObject()
+                            .startObject("SkewNess").field("type", "integer").endObject()
+                            .startObject("SkewnessIndex").field("type", "integer").endObject()
+                            .startObject("kurtosis").field("type", "integer").endObject()
+                            .startObject("KurtosisIndex").field("type", "integer").endObject()
+                            .startObject("InpulseIndex").field("type", "integer").endObject()
+                            .startObject("WaveformIndex").field("type", "integer").endObject()
+                                    .endObject())
+                    .execute().actionGet();
+
+
+
+
+
+
             String raw_data = "";
             String spectrum = "";
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 1; i++) {
                 raw_data = raw_data + "aaaaaaaaaa";
                 System.out.println(i);
 //            System.out.println(raw_data);
             }
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 1; i++) {
                 spectrum = spectrum + "bbbbbbbbbb";
 //            System.out.println(raw_data);
 
@@ -127,7 +167,7 @@ public class hello {
                     parseObject.put("RawData", raw_data);
                     parseObject.put("Spectrum", spectrum);
 
-                    request.add(new IndexRequest("test", "doc")
+                    request.add(new IndexRequest("newtest", "doc")
                             .source(parseObject));
                 }
 
