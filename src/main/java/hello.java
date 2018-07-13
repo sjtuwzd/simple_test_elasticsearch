@@ -58,8 +58,8 @@ public class hello {
 
         int N = 10000000;
 //        int LENGTH = 10;
-        int BULK_SIZE =10000;
-        int BULK_NUM =10000;
+        int BULK_SIZE =20;
+        int BULK_NUM =200000;
 
         //非集群client
 //        RestHighLevelClient client = new RestHighLevelClient(
@@ -80,14 +80,17 @@ public class hello {
                     .addTransportAddress(new TransportAddress(InetAddress.getByName("116.62.53.46"), 9300));
 
             client.admin().indices().create(new CreateIndexRequest("newtest")).actionGet();
+            System.out.println("Step1");
+
             PutMappingResponse putMappingResponse = client.admin().indices()
                     .preparePutMapping("newtest")
                     .setType("doc")
                     .setSource(jsonBuilder().prettyPrint()
                         .startObject()
-                            .startObject("rawdata").field("type", "string").field("index", "not_analyzed").endObject()
-                            .startObject("spectrum").field("type", "string").field("index", "not_analyzed").endObject()
-                            .startObject("id").field("type", "string").endObject()
+                                .startObject("properties")
+                            .startObject("rawdata").field("type", "keyword").field("index", "false").endObject()
+                            .startObject("spectrum").field("type", "keyword").field("index", "false").endObject()
+                            .startObject("id").field("type", "integer").endObject()
                              .startObject("timestamp").field("type", "integer").endObject()
                             .startObject("health").field("type", "integer").endObject()
                             .startObject("rul").field("type", "integer").endObject()
@@ -103,8 +106,11 @@ public class hello {
                             .startObject("KurtosisIndex").field("type", "integer").endObject()
                             .startObject("InpulseIndex").field("type", "integer").endObject()
                             .startObject("WaveformIndex").field("type", "integer").endObject()
-                                    .endObject())
+                                    .endObject()
+                            .endObject())
                     .execute().actionGet();
+
+            System.out.println("Step2");
 
 
 
@@ -113,12 +119,12 @@ public class hello {
 
             String raw_data = "";
             String spectrum = "";
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 20000; i++) {
                 raw_data = raw_data + "aaaaaaaaaa";
                 System.out.println(i);
 //            System.out.println(raw_data);
             }
-            for (int i = 0; i < 1; i++) {
+            for (int i = 0; i < 10000; i++) {
                 spectrum = spectrum + "bbbbbbbbbb";
 //            System.out.println(raw_data);
 
